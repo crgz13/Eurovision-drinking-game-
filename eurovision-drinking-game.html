@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eurovision UK Drinking Game 🇬🇧</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=DM+Mono:wght@400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #FFD700;
+    --hot-pink: #FF006E;
+    --electric-blue: #0057FF;
+    --cream: #FFF8E7;
+    --deep-purple: #1a0030;
+    --mid-purple: #2d0050;
+    --light-purple: #6b00a8;
+    --star-white: #fffce8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep-purple);
+    color: var(--cream);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Starfield */
+  .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .star {
+    position: absolute;
+    background: var(--star-white);
+    border-radius: 50%;
+    animation: twinkle var(--dur, 2s) ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    from { opacity: 0.1; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* Confetti shimmer overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 50%, rgba(255,0,110,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(0,87,255,0.1) 0%, transparent 60%),
+      radial-gradient(ellipse at 60% 80%, rgba(107,0,168,0.12) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    position: relative;
+  }
+
+  .flag-stripe {
+    display: flex;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 0 20px rgba(255,215,0,0.4);
+  }
+  .flag-stripe span { flex: 1; }
+  .flag-stripe .r { background: #CF111A; }
+  .flag-stripe .w { background: white; }
+  .flag-stripe .b { background: #012169; }
+
+  .crown {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(0 0 15px rgba(255,215,0,0.8));
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 8vw, 5.5rem);
+    line-height: 0.9;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, var(--gold) 0%, #ff9500 40%, var(--hot-pink) 70%, var(--electric-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+  }
+
+  .disclaimer {
+    font-size: 0.65rem;
+    color: rgba(255,248,231,0.65);
+    letter-spacing: 0.05em;
+    margin-top: 1rem;
+  }
+
+  /* Section headers */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 3rem 0 1.2rem;
+  }
+  .section-label h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .section-label .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, currentColor, transparent);
+    opacity: 0.3;
+  }
+  .section-label .emoji { font-size: 1.4rem; }
+
+  /* Drink cards */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .card {
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+    position: relative;
+    cursor: default;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--card-bg, rgba(255,255,255,0.04));
+    z-index: 0;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,215,0,0.2);
+  }
+
+  .card > * { position: relative; z-index: 1; }
+
+  .card .sip-badge {
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 0.6rem;
+    border: 1px solid currentColor;
+  }
+
+  .sip-1 .sip-badge { color: #7eceff; border-color: rgba(126,206,255,0.4); background: rgba(126,206,255,0.08); }
+  .sip-2 .sip-badge { color: #ff9f7e; border-color: rgba(255,159,126,0.4); background: rgba(255,159,126,0.08); }
+  .sip-3 .sip-badge { color: #ff5fa0; border-color: rgba(255,95,160,0.4); background: rgba(255,95,160,0.08); }
+  .sip-finish .sip-badge { color: var(--gold); border-color: rgba(255,215,0,0.5); background: rgba(255,215,0,0.1); }
+
+  .card .rule-text {
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: #111;
+  }
+
+  .card .card-icon {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 1.6rem;
+    opacity: 0.18;
+  }
+
+  /* Colour-coded backgrounds */
+  .sip-1 { --card-bg: rgba(180,220,255,0.85); }
+  .sip-2 { --card-bg: rgba(255,220,200,0.85); }
+  .sip-3 { --card-bg: rgba(255,200,225,0.85); }
+  .sip-finish { --card-bg: rgba(255,245,180,0.85); }
+
+  /* Punishment table */
+  .punish-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .punish-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    transition: background 0.2s;
+  }
+  .punish-row:hover { background: rgba(255,255,255,0.95); }
+  .punish-row .p-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; }
+  .punish-row .p-text { font-size: 0.82rem; line-height: 1.55; color: #111; }
+  .punish-row .p-text strong { color: #cc005a; font-weight: 500; }
+
+  /* UK Rules special box */
+  .uk-special {
+    background: rgba(220,230,255,0.88);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+  }
+  .uk-special h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.12em;
+    color: #012169;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .uk-special ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .uk-special li {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    padding-left: 1.2rem;
+    position: relative;
+    color: #111;
+  }
+  .uk-special li::before {
+    content: '★';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.6rem;
+    top: 3px;
+  }
+
+  /* Voting round */
+  .voting-box {
+    background: rgba(235,210,255,0.88);
+    border: 1px solid rgba(180,120,255,0.4);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  /* The Big Finish */
+  .finale-box {
+    background: rgba(255,250,220,0.88);
+    border: 1px solid rgba(255,215,0,0.5);
+    border-radius: 16px;
+    padding: 1.8rem;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .finale-box .finale-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+    color: #7a5500;
+    margin-bottom: 1rem;
+  }
+  .finale-box p {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: #111;
+    max-width: 500px;
+    margin: 0 auto 0.7rem;
+  }
+
+  /* Print note */
+  .print-note {
+    text-align: center;
+    margin-top: 3rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* Ticker */
+  .ticker-wrap {
+    overflow: hidden;
+    background: var(--hot-pink);
+    padding: 6px 0;
+    margin: 2.5rem -1.5rem;
+    position: relative;
+  }
+  .ticker {
+    display: flex;
+    gap: 3rem;
+    white-space: nowrap;
+    animation: scroll 25s linear infinite;
+  }
+  .ticker span {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    color: white;
+    flex-shrink: 0;
+  }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (max-width: 500px) {
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Starfield -->
+<div class="stars" id="stars"></div>
+
+<div class="container">
+  <header>
+    <div class="flag-stripe">
+      <span class="b"></span><span class="r"></span><span class="w"></span>
+      <span class="b"></span><span class="r"></span><span class="w"></span>
+      <span class="b"></span><span class="r"></span><span class="w"></span>
+      <span class="b"></span><span class="r"></span><span class="w"></span>
+      <span class="b"></span><span class="r"></span><span class="w"></span>
+    </div>
+    <span class="crown">👑</span>
+    <p class="subtitle">Official & Unofficial</p>
+    <h1>Eurovision<br>Drinking Game</h1>
+    <p class="subtitle">United Kingdom Edition · Nul Points Not Included</p>
+    <p class="disclaimer">🍺 Drink responsibly. Eat something. This is a marathon, not a sprint. Probably stay in London.</p>
+  </header>
+
+  <!-- ONE SIP -->
+  <div class="section-label" style="color: #7eceff;">
+    <h2>One Sip</h2>
+    <div class="line"></div>
+    <span class="emoji">🍺</span>
+  </div>
+  <div class="cards">
+    <div class="card sip-1">
+      <span class="card-icon">🎸</span>
+      <span class="sip-badge">1 SIP</span>
+      <p class="rule-text">A wind machine is used on stage.</p>
+    </div>
+    <div class="card sip-1">
+      <span class="card-icon">🔥</span>
+      <span class="sip-badge">1 SIP</span>
+      <p class="rule-text">There is fire, pyrotechnics, or a firework effect on stage.</p>
+    </div>
+    <div class="card sip-1">
+      <span class="card-icon">🧝</span>
+      <span class="sip-badge">1 SIP</span>
+      <p class="rule-text">A performer wears a costume that defies all logic.</p>
+    </div>
+    <div class="card sip-1">
+      <span class="card-icon">💃</span>
+      <span class="sip-badge">1 SIP</span>
+      <p class="rule-text">There are backing dancers doing choreography that is… aggressively enthusiastic.</p>
+    </div>
+    <div class="card sip-1">
+      <span class="card-icon">🎤</span>
+      <span class="sip-badge">1 SIP</span>
+      <p class="rule-text">Someone hits a completely unnecessary high note.</p>
+    </div>
+    <div class="card sip-1">
+      <span class="card-icon">😢</span>
+      <span class="sip-badge">1 SIP</span>
+      <p class="rule-text">The song is performed entirely in a language no one in the room can identify.</p>
+    </div>
+    <div class="card sip-1">
+      <span class="card-icon">🌈</span>
+      <span class="sip-badge">1 SIP</span>
+      <p class="rule-text">A rainbow flag or queer flag appears on screen or in the crowd.</p>
+    </div>
+    <div class="card sip-1">
+      <span class="card-icon">🥁</span>
+      <span class="sip-badge">1 SIP</span>
+      <p class="rule-text">A commentator makes a subtle jab at a country's voting bloc politics.</p>
+    </div>
+    <div class="card sip-1">
+      <span class="card-icon">🎻</span>
+      <span class="sip-badge">1 SIP</span>
+      <p class="rule-text">An instrument is played on stage that you would not expect at Eurovision (e.g. accordion, didgeridoo, kazoo).</p>
+    </div>
+    <div class="card sip-1">
+      <span class="card-icon">💬</span>
+      <span class="sip-badge">1 SIP</span>
+      <p class="rule-text">A spokesperson says their country's name with palpable national pride.</p>
+    </div>
+  </div>
+
+  <!-- TWO SIPS -->
+  <div class="section-label" style="color: #ff9f7e;">
+    <h2>Two Sips</h2>
+    <div class="line"></div>
+    <span class="emoji">🍻</span>
+  </div>
+  <div class="cards">
+    <div class="card sip-2">
+      <span class="card-icon">🎭</span>
+      <span class="sip-badge">2 SIPS</span>
+      <p class="rule-text">A staging concept is so abstract that no one in the room can explain what it means.</p>
+    </div>
+    <div class="card sip-2">
+      <span class="card-icon">💑</span>
+      <span class="sip-badge">2 SIPS</span>
+      <p class="rule-text">Two countries give each other twelve points and everyone groans.</p>
+    </div>
+    <div class="card sip-2">
+      <span class="card-icon">🤝</span>
+      <span class="sip-badge">2 SIPS</span>
+      <p class="rule-text">A Nordic country votes for another Nordic country. Shocking scenes.</p>
+    </div>
+    <div class="card sip-2">
+      <span class="card-icon">📞</span>
+      <span class="sip-badge">2 SIPS</span>
+      <p class="rule-text">A national spokesperson's connection cuts out mid-announcement.</p>
+    </div>
+    <div class="card sip-2">
+      <span class="card-icon">😬</span>
+      <span class="sip-badge">2 SIPS</span>
+      <p class="rule-text">The UK entry gets zero from the jury. Pour one out.</p>
+    </div>
+    <div class="card sip-2">
+      <span class="card-icon">🪄</span>
+      <span class="sip-badge">2 SIPS</span>
+      <p class="rule-text">Someone performs a "magic trick" or illusion as part of the staging.</p>
+    </div>
+    <div class="card sip-2">
+      <span class="card-icon">🌍</span>
+      <span class="sip-badge">2 SIPS</span>
+      <p class="rule-text">A country uses their own language but throws in one random English word for no reason.</p>
+    </div>
+    <div class="card sip-2">
+      <span class="card-icon">🐦</span>
+      <span class="sip-badge">2 SIPS</span>
+      <p class="rule-text">An animal or animal motif appears on stage (real or costume).</p>
+    </div>
+  </div>
+
+  <!-- THREE SIPS -->
+  <div class="section-label" style="color: #ff5fa0;">
+    <h2>Three Sips</h2>
+    <div class="line"></div>
+    <span class="emoji">🥂</span>
+  </div>
+  <div class="cards">
+    <div class="card sip-3">
+      <span class="card-icon">😭</span>
+      <span class="sip-badge">3 SIPS</span>
+      <p class="rule-text">Anyone in the room cries. They must drink as well.</p>
+    </div>
+    <div class="card sip-3">
+      <span class="card-icon">🎉</span>
+      <span class="sip-badge">3 SIPS</span>
+      <p class="rule-text">Australia gets a suspiciously high score, triggering the annual "but ARE they even European?" debate.</p>
+    </div>
+    <div class="card sip-3">
+      <span class="card-icon">🕊️</span>
+      <span class="sip-badge">3 SIPS</span>
+      <p class="rule-text">A wildcard country no one expected makes the top 5.</p>
+    </div>
+    <div class="card sip-3">
+      <span class="card-icon">🎤</span>
+      <span class="sip-badge">3 SIPS</span>
+      <p class="rule-text">A notable wardrobe malfunction, prop failure, or stage invasion occurs.</p>
+    </div>
+    <div class="card sip-3">
+      <span class="card-icon">📺</span>
+      <span class="sip-badge">3 SIPS</span>
+      <p class="rule-text">Graham Norton (or whoever's commentating) delivers a line so devastating it deserves its own BAFTA.</p>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span>🇬🇧 UNITED KINGDOM · DRINK UP · NUL POINTS SOLIDARITY · DOUZE POINTS · LONDON CALLING · DRINK RESPONSIBLY · 🎤 TWELVE POINTS GO TO · 🇬🇧 UNITED KINGDOM · DRINK UP · NUL POINTS SOLIDARITY · DOUZE POINTS · LONDON CALLING · DRINK RESPONSIBLY · 🎤 TWELVE POINTS GO TO ·</span>
+      <span>🇬🇧 UNITED KINGDOM · DRINK UP · NUL POINTS SOLIDARITY · DOUZE POINTS · LONDON CALLING · DRINK RESPONSIBLY · 🎤 TWELVE POINTS GO TO · 🇬🇧 UNITED KINGDOM · DRINK UP · NUL POINTS SOLIDARITY · DOUZE POINTS · LONDON CALLING · DRINK RESPONSIBLY · 🎤 TWELVE POINTS GO TO ·</span>
+    </div>
+  </div>
+
+  <!-- UK SPECIAL RULES -->
+  <div class="section-label" style="color: var(--gold);">
+    <h2>🇬🇧 UK Special Rules</h2>
+    <div class="line"></div>
+  </div>
+  <div class="uk-special">
+    <h3>⚠️ These Rules Apply to the UK Entry Only</h3>
+    <ul>
+      <li>When the UK entry performs: everyone must stand up, belt a lyric they don't know, and sit back down.</li>
+      <li>If the UK places in the Top 5: everyone cheers and takes a celebratory sip. No arguing allowed for 2 minutes.</li>
+      <li>If the UK places in the Bottom 5: last person to say "We wuz robbed!" finishes their drink.</li>
+      <li>If the UK gets nul points: full group shot. This is a national emergency. Handle it as such.</li>
+      <li>If the UK wins: everyone in the room calls one friend or family member not watching and screams down the phone. Then drinks.</li>
+      <li>Whenever any UK spokesperson appears on screen: mandatory sip of tea (or whatever you're having).</li>
+    </ul>
+  </div>
+
+  <!-- VOTING ROUND -->
+  <div class="section-label" style="color: #c87dff;">
+    <h2>The Voting Gauntlet</h2>
+    <div class="line"></div>
+    <span class="emoji">📊</span>
+  </div>
+  <div class="voting-box">
+    <div class="punish-list">
+      <div class="punish-row">
+        <span class="p-icon">🗳️</span>
+        <p class="p-text">When "And the <strong>twelve points</strong> go to…" is said: everyone freezes until the country is announced. First person to move drinks.</p>
+      </div>
+      <div class="punish-row">
+        <span class="p-icon">😤</span>
+        <p class="p-text">If you correctly predicted a country's douze points before they gave it: nominate someone to drink two sips.</p>
+      </div>
+      <div class="punish-row">
+        <span class="p-icon">🤫</span>
+        <p class="p-text">A spokesperson in a glamorous location makes everyone jealous: <strong>one collective sip</strong> of envy.</p>
+      </div>
+      <div class="punish-row">
+        <span class="p-icon">📵</span>
+        <p class="p-text">If the leaderboard changes dramatically in the final votes: last person to gasp theatrically drinks.</p>
+      </div>
+      <div class="punish-row">
+        <span class="p-icon">💀</span>
+        <p class="p-text">If the winning country is one you'd <strong>never heard of</strong> before tonight: everyone finishes their drink in solidarity.</p>
+      </div>
+      <div class="punish-row">
+        <span class="p-icon">🎯</span>
+        <p class="p-text">Whoever guessed the winner at the start of the night: <strong>distributes five sips</strong> however they choose.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUNISHMENTS -->
+  <div class="section-label" style="color: var(--hot-pink);">
+    <h2>House Rules & Punishments</h2>
+    <div class="line"></div>
+    <span class="emoji">⚖️</span>
+  </div>
+  <div class="punish-list">
+    <div class="punish-row">
+      <span class="p-icon">📱</span>
+      <p class="p-text"><strong>Phone Check:</strong> Anyone caught scrolling their phone during a performance drinks two sips. No excuses. Not even for "just checking the score".</p>
+    </div>
+    <div class="punish-row">
+      <span class="p-icon">🏆</span>
+      <p class="p-text"><strong>Bold Prediction:</strong> At the start, everyone names their winner. Whoever is most wrong at the end must make everyone a round of drinks.</p>
+    </div>
+    <div class="punish-row">
+      <span class="p-icon">🙄</span>
+      <p class="p-text"><strong>The Cynic Tax:</strong> Every time someone says "this is rubbish" or "they're all the same" — they drink. Keep cynicism expensive.</p>
+    </div>
+    <div class="punish-row">
+      <span class="p-icon">🇩🇪</span>
+      <p class="p-text"><strong>Big Four Solidarity:</strong> Germany, Spain, France, or Italy get 12 points from a neighbour — <strong>everyone drinks</strong> to the mystery of geopolitics.</p>
+    </div>
+    <div class="punish-row">
+      <span class="p-icon">🎶</span>
+      <p class="p-text"><strong>Earworm Penalty:</strong> If you catch yourself humming an entry during the adverts, confess and drink one sip. Denial is worse.</p>
+    </div>
+    <div class="punish-row">
+      <span class="p-icon">🧑‍⚖️</span>
+      <p class="p-text"><strong>The Jury Is Out:</strong> If you disagree loudly with a jury score, the room votes — if majority agrees with you, <strong>you nominate</strong> two sips; if not, you drink them.</p>
+    </div>
+  </div>
+
+  <!-- THE FINALE -->
+  <div class="section-label" style="color: var(--gold);">
+    <h2>The Grand Finale</h2>
+    <div class="line"></div>
+    <span class="emoji">✨</span>
+  </div>
+  <div class="finale-box">
+    <p class="finale-title">🏆 When a Winner is Crowned 🏆</p>
+    <p>The person who picked the winner raises their glass. Everyone else toasts them. They are the Eurovision Oracle and must be consulted on all matters of camp taste for the remainder of the evening.</p>
+    <p>The person who placed last in predictions must do the washing up, explain why the UK's entry was actually robbed, and hum the winning song on request until midnight.</p>
+    <p style="color: #555; font-size: 0.7rem; margin-top: 1rem;">🚰 Drink water. Eat some crisps. The song contest lasts hours. You can do this.</p>
+  </div>
+
+  <p class="print-note">Eurovision UK Drinking Game · For Entertainment Purposes · Drink Water · Call Your Mum</p>
+</div>
+
+<script>
+  // Generate starfield
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      left: ${Math.random() * 100}%;
+      top: ${Math.random() * 100}%;
+      --dur: ${(Math.random() * 2.5 + 1).toFixed(1)}s;
+      animation-delay: ${(Math.random() * 3).toFixed(1)}s;
+    `;
+    starsEl.appendChild(s);
+  }
+</script>
+</body>
+</html>
