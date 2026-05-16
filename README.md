@@ -1,1 +1,1 @@
-# Eurovision-drinking-game-
+# Eurovision
